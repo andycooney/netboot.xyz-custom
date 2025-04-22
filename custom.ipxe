@@ -1,12 +1,26 @@
 #!ipxe
 ###
-### netboot.xyz-custom menu
+### netboot.xyz-custom Menu
+### 
+### Talos custom image from local assets
 ###
 
-:start
-echo Hello world!
-sleep 10
+:custom
+clear custom_choice
+menu Talos Bare Metal v1.9.5
+item --gap Install
+item option_one ${space} Install Talos v1.9.5
+choose custom_choice || goto custom_exit
+echo ${cls}
+goto ${custom_choice}
 goto custom_exit
 
+:option_one
+kernel http://pxe.cooney.site/talos/v1.9.5/kernel-amd64
+initrd http://pxe.cooney.site/talos/v1.9.5/initramfs-amd64.xz
+imgargs ip=eth0.200 talos.platform=metal console=tty0 init_on_alloc=1 slab_nomerge pti=on consoleblank=0 nvme_core.io_timeout=4294967295 printk.devkmsg=on ima_template=ima-ng ima_appraise=fix ima_hash=sha512 net.ifnames=0
+boot || goto custom_exit
+
 :custom_exit
-exit 0
+chain utils.ipxe
+exit
